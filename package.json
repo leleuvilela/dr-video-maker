@@ -1,0 +1,19 @@
+{
+  "name": "dr-video-maker",
+  "version": "1.0.0",
+  "description": "Projeto para fazer vídeos automaticamente",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leleuvilela/dr-video-maker.git"
+  },
+  "author": "Vinícius Vilela Nunes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/leleuvilela/dr-video-maker/issues"
+  },
+  "homepage": "https://github.com/leleuvilela/dr-video-maker#readme"
+}

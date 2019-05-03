@@ -11,7 +11,7 @@ async function robot(content) {
     const algorithmiaAuthenticated = algorithmia(credentialsAlgorithmia.apiKey);
     const wikipediaAlgorithm = await algorithmiaAuthenticated
       .algo("web/WikipediaParser/0.1.2?timeout=300")
-      .pipe(content.searchTerm);
+      .pipe({ lang: content.language, articleName: content.searchTerm });
     const wikipediaContent = wikipediaAlgorithm.get();
 
     content.sourceContentOriginal = wikipediaContent.content;

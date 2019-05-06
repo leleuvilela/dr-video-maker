@@ -61,3 +61,4 @@ typings/
 .next
 
 credentials/algorithmia.js
+credentials/watson-nlu.js

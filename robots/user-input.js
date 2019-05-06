@@ -1,9 +1,16 @@
 const readline = require("readline-sync");
+const state = require("./state");
 
-function robot(content) {
+function robot() {
+  const content = {
+    maximumSentences: 7
+  };
+
   content.searchTerm = askAndReturnSearchTerm();
   content.prefix = askAndReturnPrefix();
   content.language = askAndReturnLanguage();
+
+  state.save(content);
 
   function askAndReturnSearchTerm() {
     return readline.question("Digite um termo da Wikipedia para pesquisar: ");

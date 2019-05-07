@@ -1,7 +1,7 @@
 const algorithmia = require("algorithmia");
 const credentialsAlgorithmia = require("../credentials/algorithmia");
 const sentenceBoundaryDetection = require("sbd");
-
+const summary = require("lexrank.js");
 const credentialsWatson = require("../credentials/watson-nlu");
 const NaturalLanguageUnderstandingV1 = require("ibm-watson/natural-language-understanding/v1.js");
 
@@ -25,13 +25,19 @@ async function robot() {
   state.save(content);
 
   async function fetchContentFromWikipedia(content) {
-    const algorithmiaAuthenticated = algorithmia(credentialsAlgorithmia.apiKey);
-    const wikipediaAlgorithm = await algorithmiaAuthenticated
-      .algo("web/WikipediaParser/0.1.2?timeout=300")
-      .pipe({ lang: content.language, articleName: content.searchTerm });
-    const wikipediaContent = wikipediaAlgorithm.get();
-
-    content.sourceContentOriginal = wikipediaContent.content;
+    try {
+      const algorithmiaAuthenticated = algorithmia(
+        credentialsAlgorithmia.apiKey
+      );
+      const wikipediaAlgorithm = await algorithmiaAuthenticated
+        .algo("web/WikipediaParser/0.1.2?timeout=300")
+        .pipe({ lang: content.language, articleName: content.searchTerm });
+      const wikipediaContent = wikipediaAlgorithm.get();
+      // console.log(wikipediaContent.content);
+      content.sourceContentOriginal = wikipediaContent.content;
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   function sanitizeContent(content) {
@@ -46,18 +52,44 @@ async function robot() {
 
     function removeBlankLinesAndMarkdown(text) {
       const allLines = text.split("\n");
-      const withoutBlankLinesAndMarkdown = allLines.filter(line => {
-        if (line.trim().length === 0 || line.trim().startsWith("=")) {
-          return false;
-        }
-        return true;
-      });
+      const withoutBlankLinesAndMarkdown = allLines.filter(
+        line => !(line.trim().length === 0 || line.trim().startsWith("="))
+      );
       return withoutBlankLinesAndMarkdown.join(" ");
     }
 
     function removeDatesInParentheses(text) {
       return text.replace(/\((?:\([^()]*\)|[^()])*\)/gm, "").replace(/  /, " ");
     }
+  }
+
+  async function breakContentIntoLexicalRankedSentences(content) {
+    return new Promise((resolve, reject) => {
+      content.sentences = [];
+
+      summary.lexrank(content.sourceContentSanitized, (error, result) => {
+        if (error) {
+          throw error;
+          return reject(error);
+        }
+
+        sentences = result[0].sort(function(a, b) {
+          return b.weight.average - a.weight.average;
+        });
+
+        console.log(sentences);
+
+        sentences.forEach(sentence => {
+          content.sentences.push({
+            text: sentence.text,
+            keywords: [],
+            images: []
+          });
+        });
+
+        resolve(sentences);
+      });
+    });
   }
 
   function breakContentIntoSentences(content) {
@@ -82,23 +114,25 @@ async function robot() {
 
   async function fetchKeywordsOfAllSentences(content) {
     for (const sentence of content.sentences) {
-      sentence.keywords = await fetchWatsonAndReturnKeyWords(sentence.text);
+      sentence.keywords = await fetchWatsonAndReturnKeyWords(
+        sentence.text,
+        content.language
+      );
     }
   }
 
-  async function fetchWatsonAndReturnKeyWords(sentence) {
+  async function fetchWatsonAndReturnKeyWords(sentence, language) {
     return new Promise((resolve, reject) => {
       nlu.analyze(
         {
           text: sentence,
           features: {
             keywords: {}
-          }
+          },
+          language: language
         },
         (error, response) => {
-          if (error) {
-            throw error;
-          }
+          if (error) reject(error);
 
           const keywords = response.keywords.map(keyword => keyword.text);
           resolve(keywords);

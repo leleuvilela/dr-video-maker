@@ -6,9 +6,9 @@ function robot() {
     maximumSentences: 7
   };
 
+  content.language = askAndReturnLanguage();
   content.searchTerm = askAndReturnSearchTerm();
   content.prefix = askAndReturnPrefix();
-  content.language = askAndReturnLanguage();
 
   state.save(content);
 
@@ -17,7 +17,12 @@ function robot() {
   }
 
   function askAndReturnPrefix() {
-    const prefixes = ["Quem é", "O que é", "A história do"];
+    let prefixes;
+    if (content.language == "pt") {
+      prefixes = ["Quem é", "O que é", "A história do"];
+    } else {
+      prefixes = ["Who is", "What is", "History of"];
+    }
     const selectedPrefixIndex = readline.keyInSelect(prefixes);
 
     return prefixes[selectedPrefixIndex];

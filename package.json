@@ -17,12 +17,16 @@
   },
   "homepage": "https://github.com/leleuvilela/dr-video-maker#readme",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.17",
+    "@ffprobe-installer/ffprobe": "^1.0.10",
     "algorithmia": "^0.3.10",
+    "fluent-ffmpeg": "^2.1.2",
     "gm": "^1.23.1",
     "googleapis": "^39.2.0",
     "ibm-watson": "^4.1.0",
     "image-downloader": "^3.4.2",
     "readline-sync": "^1.4.9",
-    "sbd": "^1.0.15"
+    "sbd": "^1.0.15",
+    "videoshow": "^0.1.11"
   }
 }

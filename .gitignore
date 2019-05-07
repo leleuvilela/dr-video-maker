@@ -63,3 +63,4 @@ typings/
 credentials/algorithmia.js
 credentials/watson-nlu.js
 content.json
+content/*.png

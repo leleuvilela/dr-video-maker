@@ -64,3 +64,6 @@ credentials/algorithmia.js
 credentials/watson-nlu.js
 content.json
 content/*.png
+content/*.jpg
+content/*.js
+content/output.mp4
